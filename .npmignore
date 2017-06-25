@@ -1,1 +1,7 @@
-!*.js
+*.tgz
+
+package-lock.json
+yarn.lock
+
+.gitignore
+.npmignore
