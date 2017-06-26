@@ -7,3 +7,8 @@ interface NodeModule {
         accept: (pathToRootComponent: string, callback: () => void) => void,
     };
 }
+
+declare module "react-hot-loader/patch" {
+    var u: any
+    export default u
+}
