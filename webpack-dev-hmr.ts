@@ -15,7 +15,7 @@ export default function (env: string, vendorScripts: string[]) {
     const webpackDevMiddleware = webpackDevMiddlewareFactory(compiler, {
             index: 'index.html',
             publicPath,
-            //quiet: true,
+            quiet: true,
             stats: {
                 
                 colors: true,
