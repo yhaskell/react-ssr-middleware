@@ -16,7 +16,9 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
 
     const env = process.env.NODE_ENV
     const rootComponent = watcher.watch(rootComponentPath, (updated) => options.rootComponent = updated)
-    const defaultScripts = ["react", "react-dom", "react-hot-loader"]
+    const routes = !!opts.withRouter ? watcher.watch(opts.withRouter, (updated) => options.routes = updated) : undefined
+    let defaultScripts = ["react", "react-dom", "react-hot-loader"]
+    if (!!opts.withRouter) defaultScripts.push("react-router-dom")
     const vendorScripts = Array.from(new Set([...defaultScripts, ...opts.vendorScripts]))
     const includeJSFiles = env === 'production' ?
             ['common.js', 'vendor.js', 'main.js'] : 
@@ -26,6 +28,7 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
 
     let options: InternalOptions & Options = {
         rootComponent, 
+        routes,
         env,
         webpackDevHmrMiddleware, 
         includeJSFiles,

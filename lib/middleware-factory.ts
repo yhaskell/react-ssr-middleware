@@ -5,6 +5,11 @@ import * as ReactDOM from 'react-dom/server'
 import { InternalOptions, Options } from './options'
 import { defaultRenderer } from './html-renderer'
 
+
+interface ComponentRenderer {
+    (component: any, location: string, persistedData: string, routes?: any): JSX.Element
+}
+
 export default function middlewareFactory(options: InternalOptions & Options) {
     const renderer = options.htmlRenderer ? options.htmlRenderer : defaultRenderer
     const getPersistedData = options.persistDataFactory ? options.persistDataFactory : () => "undefined"
@@ -12,7 +17,13 @@ export default function middlewareFactory(options: InternalOptions & Options) {
     function ssr(req: express.Request, rsp: express.Response, next: express.NextFunction) {
         const persistedData = getPersistedData()
 
-        const rendered = ReactDOM.renderToString(React.createElement(<any>options.rootComponent, { persistedData }, null))
+        const cRenderer: ComponentRenderer = options.withRouter ?
+            require('./render-component-with-router').default :
+            require('./render-component').default
+
+        const toRender = cRenderer(options.rootComponent, req.url, persistedData, options.routes)
+
+        const rendered = ReactDOM.renderToString(toRender)
 
         const html = renderer(rendered, options.includeJSFiles, persistedData)
 
