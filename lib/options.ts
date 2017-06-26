@@ -6,7 +6,7 @@ import { RouteConfig } from 'react-router-config'
 export interface Options {
     vendorScripts: string[]
     htmlRenderer?: Renderer
-    persistDataFactory?(): any
+    persistDataFactory(): any
     withRouter?: string
 }
 

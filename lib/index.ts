@@ -26,6 +26,8 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
 
     const webpackDevHmrMiddleware = webpackDevHmrMiddlewareFactory(env, vendorScripts)
 
+    const persistDataFactory = opts.persistDataFactory || (() => "undefined")
+    
     let options: InternalOptions & Options = {
         rootComponent, 
         routes,
@@ -34,6 +36,7 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
         includeJSFiles,
         ...opts,
         vendorScripts,
+        persistDataFactory,
     }
     return middlewareFactory(options)
 }

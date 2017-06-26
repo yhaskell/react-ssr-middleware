@@ -1,41 +1,39 @@
 import * as express from 'express'
 import * as React from 'react'
-import * as ReactDOM from 'react-dom/server'
 
 import { InternalOptions, Options } from './options'
 import { defaultRenderer } from './html-renderer'
 
 
 interface ComponentRenderer {
-    (component: any, location: string, persistedData: string, routes?: any): JSX.Element | string
+    (component: any, location: string, persistedData: string, routes?: any): {
+        redirect?: string
+        contents: string
+    }
 }
 
 export default function middlewareFactory(options: InternalOptions & Options) {
     const renderer = options.htmlRenderer ? options.htmlRenderer : defaultRenderer
-    const getPersistedData = options.persistDataFactory ? options.persistDataFactory : () => "undefined"
+    const cRenderer: ComponentRenderer = 
+                require(options.withRouter ? './render-component-with-router' : './render-component').default
 
-    function ssr(req: express.Request, rsp: express.Response, next: express.NextFunction) {
-        const persistedData = getPersistedData()
+    return function middleware(req: express.Request, rsp: express.Response, next: express.NextFunction) {
+        function ssr() {
+            const persistedData = options.persistDataFactory()
 
-        const cRenderer: ComponentRenderer = options.withRouter ?
-            require('./render-component-with-router').default :
-            require('./render-component').default
+            const rendered = cRenderer(options.rootComponent, req.url, persistedData, options.routes)
 
-        const toRender = cRenderer(options.rootComponent, req.url, persistedData, options.routes)
-        if (typeof toRender == "string") {
-                return rsp.redirect(toRender)
-        } else {
-            const rendered = ReactDOM.renderToString(toRender)
-
-            const html = renderer(rendered, options.includeJSFiles, persistedData)
+            if (rendered.redirect)
+                return rsp.redirect(rendered.redirect)
+            
+            const html = renderer(rendered.contents, options.includeJSFiles, persistedData)
 
             rsp.send(html)
         }
-    }
-    return function middleware(req: express.Request, rsp: express.Response, next: express.NextFunction) {
+
         if (options.env === "production")
-            express.static("dist/static")(req, rsp, () => ssr(req, rsp, next))
+            express.static("dist/static")(req, rsp, ssr)
         else
-            options.webpackDevHmrMiddleware(req, rsp, () => ssr(req, rsp, next))
+            options.webpackDevHmrMiddleware(req, rsp, ssr)
     }
 }

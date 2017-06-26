@@ -14,7 +14,10 @@ export default (component: any, location: string, persistedData: string, routes:
         { location, context },
         routesElement
     )
-    renderToString(rendered)
-    return context.url || rendered
+    const contents = renderToString(rendered)
+    return {
+        redirect: context.url,
+        contents
+    }
 }
 
