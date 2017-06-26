@@ -7,7 +7,7 @@ import { defaultRenderer } from './html-renderer'
 
 
 interface ComponentRenderer {
-    (component: any, location: string, persistedData: string, routes?: any): JSX.Element
+    (component: any, location: string, persistedData: string, routes?: any): JSX.Element | string
 }
 
 export default function middlewareFactory(options: InternalOptions & Options) {
@@ -22,17 +22,20 @@ export default function middlewareFactory(options: InternalOptions & Options) {
             require('./render-component').default
 
         const toRender = cRenderer(options.rootComponent, req.url, persistedData, options.routes)
+        if (typeof toRender == "string") {
+                return rsp.redirect(toRender)
+        } else {
+            const rendered = ReactDOM.renderToString(toRender)
 
-        const rendered = ReactDOM.renderToString(toRender)
+            const html = renderer(rendered, options.includeJSFiles, persistedData)
 
-        const html = renderer(rendered, options.includeJSFiles, persistedData)
-
-        rsp.send(html)
+            rsp.send(html)
+        }
     }
     return function middleware(req: express.Request, rsp: express.Response, next: express.NextFunction) {
         if (options.env === "production")
             express.static("dist/static")(req, rsp, () => ssr(req, rsp, next))
-        else 
+        else
             options.webpackDevHmrMiddleware(req, rsp, () => ssr(req, rsp, next))
     }
 }
