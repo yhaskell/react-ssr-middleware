@@ -5,7 +5,7 @@ import * as webpackDevMiddlewareFactory from 'webpack-dev-middleware'
 import * as webpackHotMiddlewareFactory from 'webpack-hot-middleware'
 
 
-import webpackConfig from './webpack.config'
+import webpackConfig from '../config/webpack.config'
 
 export default function (env: string, vendorScripts: string[]) {
     const config = webpackConfig(env, vendorScripts)
@@ -15,7 +15,7 @@ export default function (env: string, vendorScripts: string[]) {
     const webpackDevMiddleware = webpackDevMiddlewareFactory(compiler, {
             index: 'index.html',
             publicPath,
-            quiet: true,
+            // quiet: true,
             stats: {
                 
                 colors: true,

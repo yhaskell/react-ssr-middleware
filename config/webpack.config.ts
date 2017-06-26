@@ -76,10 +76,10 @@ export default (env: string, vendorScripts: string[]): Configuration => {
         devtool,
         resolve: {
             extensions: ['.tsx', '.ts', '.js', '.css'],
-            modules: ['node_modules', resolve(__dirname, "node_modules")]
+            modules: ['node_modules', resolve(__dirname, "..", "node_modules")]
         },
         resolveLoader: {
-            modules: ["node_modules", resolve(__dirname, "node_modules")]
+            modules: ["node_modules", resolve(__dirname, "..", "node_modules")]
         },
         module: {
             rules: [
@@ -90,7 +90,7 @@ export default (env: string, vendorScripts: string[]): Configuration => {
                         {
                             loader: 'awesome-typescript-loader',
                             options: {
-                                configFileName: resolve(__dirname, "tsconfig.json")
+                                configFileName: resolve(__dirname, "..", "tsconfig.json")
                             }
                         }
                     ],

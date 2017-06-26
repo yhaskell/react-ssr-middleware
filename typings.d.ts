@@ -8,6 +8,11 @@ interface NodeModule {
     };
 }
 
+interface Set<T> {
+    removeAll(another: IterableIterator<T>): Set<T>
+}
+
+
 declare module "react-hot-loader/patch" {
     var u: any
     export default u
