@@ -7,6 +7,7 @@ import webpackDevHmrMiddlewareFactory from './webpack-dev-hmr'
 
 interface Options {
     vendorScripts: string[]
+    persistDataFactory?(): any
 }
 
 var options: {
@@ -17,8 +18,9 @@ var options: {
 
 let webpackDevHmrMiddleware: express.Handler
 
+type JSONData = string
 
-const genPage = (renderedApp: string, scripts: string[]) => `
+const genPage = (renderedApp: string, scripts: string[], persistData?: JSONData) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +31,7 @@ const genPage = (renderedApp: string, scripts: string[]) => `
 </head>
 <body>
     <div id="root">${renderedApp}</div>
+    ${persistData && `<script>window.__PERSISTED_DATA__ = ${JSON.stringify(persistData)}</script>`}
     ${scripts.map(src => `<script src="${src}"></script>`).join('\n')}
 </body>
 </html>
@@ -39,8 +42,9 @@ const genPage = (renderedApp: string, scripts: string[]) => `
 function middleware(req: express.Request, rsp: express.Response, next: express.NextFunction) {
     function ssr() {
         rsp.status(200)
-        const rendered = ReactDOM.renderToString(React.createElement(<any>options.rootComponent, {}, null))
-        const html = genPage(rendered, options.scripts)
+        const persisted = options.persistDataFactory ? options.persistDataFactory() : "undefined"
+        const rendered = ReactDOM.renderToString(React.createElement(<any>options.rootComponent, { persistedData: persisted }, null))
+        const html = genPage(rendered, options.scripts, persisted)
         rsp.send(html)
     }
     
@@ -82,9 +86,11 @@ function factory(rootComponent: string, opts?: Partial<Options>) {
     options = { 
         rootComponent: rc, 
         env,
+        ...opts,
         vendorScripts: opts.vendorScripts || ["react", "react-dom", "react-hot-loader"],
         scripts: env === 'production' ?
-            ['common.js', 'vendor.js', 'main.js'] : ['common.js', 'vendor.js', 'hot.js', 'main.js']
+            ['common.js', 'vendor.js', 'main.js'] : ['common.js', 'vendor.js', 'hot.js', 'main.js'],
+        
     }
     webpackDevHmrMiddleware = webpackDevHmrMiddlewareFactory(options.env, options.vendorScripts)
     return middleware
