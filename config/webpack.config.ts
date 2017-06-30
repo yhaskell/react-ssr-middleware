@@ -15,10 +15,10 @@ import {
 } from 'webpack'
 import * as ExtractTextPlugin from 'extract-text-webpack-plugin'
 
-export default (env: string, vendorScripts: string[]): Configuration => {
+export default (env: string): Configuration => {
     let entry: Entry = {
         main: './src/index.tsx',
-        vendor: vendorScripts,
+        vendor: './src/vendor.js',
     }
     // add hot module replacement if not in production
     entry = env !== 'production' ? {

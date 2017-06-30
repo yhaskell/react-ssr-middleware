@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "bin": {
-    "ssr-scripts": "bin/ssr-scripts.js",
+    "ssr-scripts": "bin/ssr-scripts.js"
   },
   "scripts": {
     "build": "tsc"

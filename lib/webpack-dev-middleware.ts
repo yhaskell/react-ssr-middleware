@@ -7,8 +7,8 @@ import * as webpackHotMiddlewareFactory from 'webpack-hot-middleware'
 
 import webpackConfig from '../config/webpack.config'
 
-export default function (env: string, vendorScripts: string[]) {
-    const config = webpackConfig(env, vendorScripts)
+export default function (env: string) {
+    const config = webpackConfig(env)
     const compiler = webpack(config)
     const publicPath = <string>(<any>config).output.publicPath
 

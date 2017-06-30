@@ -19,19 +19,16 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
             rootComponentPath = path.resolve(fromDirname, rootComponentPath)
         if (opts.withRouter && !path.isAbsolute(opts.withRouter)) opts.withRouter = path.resolve(fromDirname, opts.withRouter)
     }
-    opts.vendorScripts = opts.vendorScripts || []
 
     const env = process.env.NODE_ENV
     const rootComponent = watcher.watch(rootComponentPath, (updated) => options.rootComponent = updated)
     const routes = !!opts.withRouter ? watcher.watch(opts.withRouter, (updated) => options.routes = updated) : undefined
-    let defaultScripts = ["react", "react-dom", "react-hot-loader"]
-    if (!!opts.withRouter) defaultScripts.push("react-router-dom")
-    const vendorScripts = Array.from(new Set([...defaultScripts, ...opts.vendorScripts]))
+    
     const includeJSFiles = env === 'production' ?
             ['common.js', 'vendor.js', 'main.js'] : 
             ['common.js', 'vendor.js', 'hot.js', 'main.js']
 
-    const webpackDevHmrMiddleware = webpackDevHmrMiddlewareFactory(env, vendorScripts)
+    const webpackDevHmrMiddleware = webpackDevHmrMiddlewareFactory(env)
 
     const persistDataFactory = opts.persistDataFactory || (() => "undefined")
     
@@ -42,7 +39,6 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
         webpackDevHmrMiddleware, 
         includeJSFiles,
         ...opts,
-        vendorScripts,
         persistDataFactory,
     }
     return middlewareFactory(options)

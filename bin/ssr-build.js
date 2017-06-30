@@ -1,9 +1,12 @@
 var webpack = require('webpack')
-var webpackConfig = require('../config/webpack.config')
+var webpackConfig = require('../config/webpack.config').default
 var ts = require('typescript')
+var fs = require('fs')
+var path = require('path')
 
 function build_webpack() {
-    webpack(webpackConfig(process.env.NODE_ENV)).run(function(err, stats) {
+    const cfg = webpackConfig(process.env.NODE_ENV)
+    webpack(cfg).run(function(err, stats) {
         if (err) {
             throw err;
         }
@@ -13,7 +16,8 @@ function build_webpack() {
 }
 
 function build_typescript() {
-    const tsConfig = require('../tsconfig.json')
+    let tsconfig = fs.readFileSync(path.resolve(__dirname, '../tsconfig.json'), 'utf8')
+    const tsConfig = ts.parseConfigFileTextToJson('../tsconfig.json', tsconfig, true).config
     const program = ts.createProgram(['./src/server.tsx'], tsConfig);
     const emitResult = program.emit();
     const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
