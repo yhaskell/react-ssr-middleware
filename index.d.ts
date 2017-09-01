@@ -27,3 +27,13 @@ declare module "react-ssr-middleware" {
 
     export = factory
 }
+
+interface NodeModule {
+    hot: {
+        accept: (pathToRootComponent: string, callback: () => void) => void,
+    };
+}
+
+interface Window {
+    __PERSISTED_DATA__: any
+}
