@@ -20,7 +20,7 @@ function factory(rootComponentPath: string, opts?: Partial<Options>) {
         if (opts.withRouter && !path.isAbsolute(opts.withRouter)) opts.withRouter = path.resolve(fromDirname, opts.withRouter)
     }
 
-    const env = process.env.NODE_ENV
+    const env = (<string>process.env.NODE_ENV) || "development"
     const rootComponent = watcher.watch(rootComponentPath, (updated) => options.rootComponent = updated)
     const routes = !!opts.withRouter ? watcher.watch(opts.withRouter, (updated) => options.routes = updated) : undefined
     
